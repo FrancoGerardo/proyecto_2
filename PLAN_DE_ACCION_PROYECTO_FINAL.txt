@@ -1,0 +1,622 @@
+================================================================================
+PLAN DE ACCIÓN - PROYECTO FINAL CLÍNICA SANTIAGO APÓSTOL
+================================================================================
+Análisis del estado actual vs. Requisitos del Proyecto Final
+Fecha: 2025
+
+================================================================================
+ESTADO ACTUAL DEL PROYECTO
+================================================================================
+
+✅ COMPLETADO:
+--------------
+1. Laravel 12 instalado con Inertia.js + Vue3
+2. Jetstream configurado (autenticación completa)
+3. Spatie Laravel Permission instalado (pero NO integrado en User)
+4. Modelo Sala creado (básico)
+5. Migraciones creadas (salas, permissions, roles)
+6. Controladores creados (SalaController parcial, otros vacíos)
+7. Estructura base MVC-MVVM con Inertia
+
+❌ PENDIENTE/INCOMPLETO:
+------------------------
+1. Modelo User sin HasRoles/HasPermissions
+2. Rutas no definidas en web.php
+3. Controladores vacíos o incompletos
+4. Páginas Vue faltantes (Salas/Index.vue, Salas/Create.vue, etc.)
+5. Validación de formularios
+6. Políticas de autorización
+7. Seeders sin datos iniciales
+8. Error en migración de salas (timestamps incorrecto)
+
+================================================================================
+REQUISITOS DEL PROYECTO FINAL (Según imagen)
+================================================================================
+
+REQUISITO 1: Diseño y Navegación
+   - Debe incluir todos los elementos de diseño y navegación citados en clase
+   ESTADO: ⚠️ PARCIAL - Tiene diseño básico de Jetstream, falta personalización
+
+REQUISITO 2: Roles de Acceso de Negocio
+   - Al menos 2 roles de acceso de negocio (administrador NO cuenta como rol)
+   ESTADO: ❌ NO IMPLEMENTADO - Solo tiene roles técnicos, falta roles de negocio
+
+REQUISITO 3: Menú Dinámico
+   - Implementación de menú dinámico usando base de datos
+   ESTADO: ❌ NO IMPLEMENTADO - Menú estático, no dinámico desde BD
+
+REQUISITO 4: Frameworks MVC-MVVM
+   - Debe implementarse usando MVC-MVVM (Laravel-Inertia)
+   ESTADO: ✅ COMPLETADO - Laravel + Inertia + Vue3 configurado
+
+REQUISITO 5: Estilos y Temas
+   - Estilo único para todo el sitio (CSS)
+   - Permitir elegir al menos 3 temas:
+     * Niños
+     * Jóvenes  
+     * Adultos
+     * Modo Día/Noche según horario del cliente
+   - Contemplar accesibilidad (cambiar tamaño de letra y contraste)
+   ESTADO: ❌ NO IMPLEMENTADO - Solo tiene Tailwind básico, sin sistema de temas
+
+REQUISITO 6: Validación de Entradas
+   - Todas las entradas deben validarse
+   - Mensajes en español para todos los formularios
+   ESTADO: ❌ NO IMPLEMENTADO - No hay Request classes ni validación
+
+REQUISITO 7: Contador de Visitas por Página
+   - Debe tener contador por página que muestre número de visitas
+   - Debe estar en el footer de cada página web
+   ESTADO: ❌ NO IMPLEMENTADO - No existe sistema de contadores
+
+REQUISITO 8: Estadísticas de Negocio y Acceso
+   - Debe tener estadísticas de negocio relacionadas con el proyecto web
+   - Debe tener estadísticas de acceso
+   ESTADO: ❌ NO IMPLEMENTADO - No hay sistema de estadísticas
+
+REQUISITO 9: Búsqueda de Información
+   - Búsqueda de información del negocio en el sitio web
+   - Debe presentarse en el header de la página principal
+   - Ejemplo: usando un campo de texto de formulario
+   ESTADO: ❌ NO IMPLEMENTADO - No hay búsqueda en header
+
+REQUISITO 10: Pagos Electrónicos
+   - Debe cumplir con procesos de registro de métodos de pago
+   - Pagos únicos
+   - Planes de pago para cada usuario
+   ESTADO: ❌ NO IMPLEMENTADO - No hay sistema de pagos
+
+================================================================================
+PASOS A SEGUIR PARA COMPLETAR EL PROYECTO
+================================================================================
+
+FASE 1: CORRECCIONES Y COMPLETAR BASE (PRIORIDAD ALTA)
+================================================================================
+
+PASO 1.1: Corregir errores críticos
+------------------------------------
+1. Corregir migración de salas:
+   - Cambiar: $table->timestamps('creado_en')->useCurrent();
+   - Por: $table->timestamps();
+   - Ubicación: database/migrations/2025_11_15_145807_create_salas_table.php
+
+2. Integrar Spatie Permission en modelo User:
+   - Agregar: use Spatie\Permission\Traits\HasRoles;
+   - Agregar trait: use HasRoles;
+   - Ubicación: app/Models/User.php
+
+3. Configurar middleware de permisos en bootstrap/app.php:
+   - Agregar alias para 'permission' y 'role'
+   - Verificar HandleInertiaRequests está registrado
+
+PASO 1.2: Completar sistema de roles y permisos
+------------------------------------------------
+1. Actualizar HandleInertiaRequests.php:
+   - Compartir roles y permisos del usuario con Vue
+   - Agregar en método share():
+     'auth' => [
+         'user' => $request->user() ? [
+             'roles' => $request->user()->getRoleNames()->toArray(),
+             'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
+         ] : null,
+     ],
+
+2. Crear helper de permisos en Vue:
+   - Crear: resources/js/helpers/permissions.js
+   - Funciones: can(), hasRole(), hasAnyPermission(), hasAllPermissions()
+   - Registrar en resources/js/app.js
+
+3. Crear seeders con roles y permisos:
+   - Actualizar DatabaseSeeder.php
+   - Crear roles de negocio (mínimo 2, sin contar Administrador):
+     * Médico
+     * Recepcionista
+     * Enfermero
+     * etc. (según necesidad del negocio)
+   - Crear permisos para salas:
+     * ver-salas
+     * crear-salas
+     * editar-salas
+     * eliminar-salas
+     * gestionar-salas
+
+PASO 1.3: Completar CRUD de Salas
+----------------------------------
+1. Definir rutas en routes/web.php:
+   Route::middleware(['auth', 'verified'])->group(function () {
+       Route::resource('salas', SalaController::class)
+           ->middleware('permission:ver-salas|gestionar-salas');
+   });
+
+2. Completar métodos en SalaController:
+   - store(): Validar y guardar nueva sala
+   - show(): Mostrar detalles de sala
+   - edit(): Formulario de edición
+   - update(): Actualizar sala
+   - destroy(): Eliminar sala
+   - Todos con verificación de permisos
+
+3. Crear Request classes para validación:
+   - php artisan make:request StoreSalaRequest
+   - php artisan make:request UpdateSalaRequest
+   - Validar campos con mensajes en español
+
+4. Crear páginas Vue:
+   - resources/js/Pages/Salas/Index.vue
+   - resources/js/Pages/Salas/Create.vue
+   - resources/js/Pages/Salas/Edit.vue
+   - resources/js/Pages/Salas/Show.vue
+
+5. Implementar controladores de Usuarios, Roles y Permisos:
+   - Completar UsuarioController
+   - Completar RolController
+   - Completar PermisoController
+   - Crear páginas Vue correspondientes
+
+FASE 2: IMPLEMENTAR REQUISITOS DEL PROYECTO FINAL
+================================================================================
+
+PASO 2.1: Implementar Menú Dinámico (Requisito 3)
+-------------------------------------------------
+1. Crear modelo y migración para menú:
+   php artisan make:model MenuItem -m
+
+2. Estructura de tabla menu_items:
+   - id
+   - nombre
+   - ruta
+   - icono (opcional)
+   - orden
+   - permiso_requerido (nullable)
+   - activo (boolean)
+   - parent_id (nullable, para submenús)
+   - timestamps
+
+3. Crear controlador:
+   php artisan make:controller MenuController
+
+4. Crear seeder con items de menú iniciales
+
+5. Modificar AppLayout.vue:
+   - Cargar menú desde base de datos
+   - Mostrar items según permisos del usuario
+   - Renderizar dinámicamente
+
+PASO 2.2: Implementar Sistema de Temas (Requisito 5)
+------------------------------------------------------
+1. Crear modelo y migración para temas:
+   php artisan make:model Tema -m
+
+2. Estructura de tabla temas:
+   - id
+   - nombre (niños, jóvenes, adultos)
+   - modo (dia, noche)
+   - colores (JSON con paleta de colores)
+   - activo (boolean)
+   - timestamps
+
+3. Crear tabla user_preferences:
+   - user_id
+   - tema_id
+   - tamaño_fuente (small, medium, large)
+   - contraste (normal, alto)
+   - modo_auto (boolean) - cambiar según horario
+   - timestamps
+
+4. Crear controlador:
+   php artisan make:controller TemaController
+
+5. Crear componente Vue ThemeSelector:
+   - Selector de tema (niños/jóvenes/adultos)
+   - Selector de modo (día/noche/auto)
+   - Control de tamaño de fuente
+   - Control de contraste
+
+6. Implementar lógica de cambio automático según horario:
+   - Middleware o servicio que detecte hora del día
+   - Cambiar automáticamente entre día/noche
+
+7. Aplicar estilos dinámicos:
+   - Usar CSS variables
+   - Inyectar estilos según tema seleccionado
+   - Guardar preferencias en localStorage y BD
+
+PASO 2.3: Implementar Contador de Visitas (Requisito 7)
+--------------------------------------------------------
+1. Crear modelo y migración:
+   php artisan make:model VisitaPagina -m
+
+2. Estructura de tabla visita_paginas:
+   - id
+   - ruta (string)
+   - usuario_id (nullable)
+   - ip_address
+   - user_agent
+   - created_at
+
+3. Crear middleware:
+   php artisan make:middleware ContadorVisitas
+
+4. Registrar middleware en bootstrap/app.php
+
+5. Crear componente Vue PageCounter:
+   - Mostrar contador en footer
+   - Obtener contador desde backend
+   - Actualizar en tiempo real
+
+6. Crear ruta API para obtener contadores:
+   Route::get('/api/contador-visitas/{ruta}', [VisitaController::class, 'getContador']);
+
+PASO 2.4: Implementar Estadísticas (Requisito 8)
+---------------------------------------------------
+1. Crear modelo y migración:
+   php artisan make:model Estadistica -m
+
+2. Estructura de tabla estadisticas:
+   - id
+   - tipo (acceso, negocio, etc.)
+   - nombre
+   - valor
+   - fecha
+   - metadata (JSON)
+   - timestamps
+
+3. Crear controlador:
+   php artisan make:controller EstadisticaController
+
+4. Crear página Vue Estadisticas/Index.vue:
+   - Gráficos de acceso (usando Chart.js o similar)
+   - Estadísticas de negocio (salas ocupadas, etc.)
+   - Filtros por fecha
+   - Exportar datos
+
+5. Implementar recolección de estadísticas:
+   - Middleware para registrar accesos
+   - Jobs para procesar estadísticas
+   - Comandos artisan para generar reportes
+
+PASO 2.5: Implementar Búsqueda (Requisito 9)
+---------------------------------------------
+1. Crear controlador:
+   php artisan make:controller BusquedaController
+
+2. Crear método de búsqueda:
+   - Buscar en salas
+   - Buscar en usuarios (si tiene permiso)
+   - Buscar en otros modelos según necesidad
+
+3. Crear componente Vue SearchBar:
+   - Campo de búsqueda en header
+   - Autocompletado
+   - Resultados en dropdown
+   - Página de resultados
+
+4. Agregar en AppLayout.vue:
+   - Incluir SearchBar en header
+   - Integrar con rutas de búsqueda
+
+PASO 2.6: Implementar Sistema de Pagos (Requisito 10)
+-------------------------------------------------------
+1. Crear modelos y migraciones:
+   php artisan make:model MetodoPago -m
+   php artisan make:model Pago -m
+   php artisan make:model PlanPago -m
+   php artisan make:model Suscripcion -m
+
+2. Estructura de tablas:
+   
+   metodos_pago:
+   - id
+   - usuario_id
+   - tipo (tarjeta, transferencia, etc.)
+   - datos (JSON - datos encriptados)
+   - activo (boolean)
+   - timestamps
+
+   pagos:
+   - id
+   - usuario_id
+   - metodo_pago_id
+   - monto
+   - concepto
+   - estado (pendiente, completado, fallido)
+   - referencia
+   - timestamps
+
+   planes_pago:
+   - id
+   - nombre
+   - descripcion
+   - precio
+   - duracion_dias
+   - activo (boolean)
+   - timestamps
+
+   suscripciones:
+   - id
+   - usuario_id
+   - plan_pago_id
+   - fecha_inicio
+   - fecha_fin
+   - estado (activa, cancelada, vencida)
+   - timestamps
+
+3. Crear controladores:
+   php artisan make:controller MetodoPagoController --resource
+   php artisan make:controller PagoController --resource
+   php artisan make:controller PlanPagoController --resource
+   php artisan make:controller SuscripcionController --resource
+
+4. Integrar pasarela de pagos (opcional):
+   - Stripe
+   - PayPal
+   - Mercado Pago
+   - O simulación para desarrollo
+
+5. Crear páginas Vue:
+   - MetodosPago/Index.vue
+   - MetodosPago/Create.vue
+   - Pagos/Index.vue
+   - Pagos/Create.vue
+   - PlanesPago/Index.vue
+   - Suscripciones/Index.vue
+
+PASO 2.7: Mejorar Diseño y Navegación (Requisito 1)
+----------------------------------------------------
+1. Personalizar AppLayout.vue:
+   - Aplicar diseño único de la clínica
+   - Logo personalizado
+   - Colores corporativos
+   - Navegación mejorada
+
+2. Crear componentes reutilizables:
+   - Header personalizado
+   - Footer con contador
+   - Sidebar (si aplica)
+   - Breadcrumbs
+
+3. Mejorar UX:
+   - Mensajes flash mejorados
+   - Loading states
+   - Confirmaciones de acciones
+   - Feedback visual
+
+PASO 2.8: Crear Roles de Negocio (Requisito 2)
+-----------------------------------------------
+1. Actualizar DatabaseSeeder:
+   - Crear roles de negocio (mínimo 2):
+     * Médico
+     * Recepcionista
+     * Enfermero
+     * Paciente
+     * etc.
+
+2. Asignar permisos a cada rol:
+   - Médico: gestionar-salas, ver-pacientes, etc.
+   - Recepcionista: crear-citas, ver-salas, etc.
+   - Enfermero: ver-salas, actualizar-estado-salas, etc.
+
+3. Crear usuarios de prueba con cada rol
+
+FASE 3: VALIDACIÓN Y MENSAJES EN ESPAÑOL (Requisito 6)
+================================================================================
+
+PASO 3.1: Crear Request Classes
+--------------------------------
+1. Para cada modelo crear Request classes:
+   - StoreSalaRequest
+   - UpdateSalaRequest
+   - StoreUsuarioRequest
+   - UpdateUsuarioRequest
+   - etc.
+
+2. Configurar validación con mensajes en español:
+   - Usar archivo de traducción: resources/lang/es/validation.php
+   - Personalizar mensajes en cada Request
+
+3. Aplicar en controladores:
+   - Usar Request en lugar de Request genérico
+   - Ejemplo: public function store(StoreSalaRequest $request)
+
+PASO 3.2: Validación en Frontend
+---------------------------------
+1. Agregar validación en componentes Vue:
+   - Usar vee-validate o validación manual
+   - Mostrar errores en español
+   - Validar antes de enviar
+
+2. Sincronizar mensajes:
+   - Asegurar que mensajes de backend y frontend coincidan
+
+FASE 4: CONFIGURACIÓN DE BASE DE DATOS
+================================================================================
+
+PASO 4.1: Cambiar a PostgreSQL
+-------------------------------
+1. Actualizar .env:
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=clinica_santiago_apostol
+   DB_USERNAME=postgres
+   DB_PASSWORD=tu_contraseña
+
+2. Crear base de datos en PostgreSQL:
+   CREATE DATABASE clinica_santiago_apostol;
+
+3. Ejecutar migraciones:
+   php artisan migrate:fresh
+
+4. Ejecutar seeders:
+   php artisan db:seed
+
+FASE 5: TESTING Y DEPURACIÓN
+================================================================================
+
+PASO 5.1: Probar funcionalidades
+---------------------------------
+1. Probar autenticación
+2. Probar CRUD de salas
+3. Probar sistema de permisos
+4. Probar cambio de temas
+5. Probar contador de visitas
+6. Probar búsqueda
+7. Probar sistema de pagos
+8. Probar estadísticas
+
+PASO 5.2: Corregir errores
+--------------------------
+1. Revisar logs: storage/logs/laravel.log
+2. Probar en diferentes navegadores
+3. Verificar responsividad
+4. Optimizar consultas a BD
+
+FASE 6: DOCUMENTACIÓN
+================================================================================
+
+PASO 6.1: Actualizar README
+----------------------------
+1. Documentar instalación
+2. Documentar configuración
+3. Documentar uso
+4. Documentar estructura del proyecto
+
+PASO 6.2: Documentar código
+---------------------------
+1. Comentar código complejo
+2. Documentar funciones importantes
+3. Crear diagramas de flujo si es necesario
+
+================================================================================
+RESUMEN DE PRIORIDADES
+================================================================================
+
+URGENTE (Hacer primero):
+1. Corregir errores críticos (migración, HasRoles)
+2. Completar CRUD de Salas
+3. Implementar roles de negocio
+4. Configurar PostgreSQL
+
+IMPORTANTE (Hacer después):
+5. Menú dinámico
+6. Sistema de temas
+7. Contador de visitas
+8. Validación en español
+
+NECESARIO (Completar proyecto):
+9. Estadísticas
+10. Búsqueda
+11. Sistema de pagos
+12. Mejoras de diseño
+
+================================================================================
+ORDEN SUGERIDO DE IMPLEMENTACIÓN
+================================================================================
+
+SEMANA 1:
+- Fase 1 completa (correcciones y base)
+- Configurar PostgreSQL
+- Completar CRUD de Salas
+- Implementar roles de negocio
+
+SEMANA 2:
+- Menú dinámico
+- Sistema de temas básico
+- Contador de visitas
+- Validación en español
+
+SEMANA 3:
+- Estadísticas básicas
+- Búsqueda
+- Sistema de pagos básico
+- Mejoras de diseño
+
+SEMANA 4:
+- Refinamiento
+- Testing completo
+- Documentación
+- Preparación para entrega
+
+================================================================================
+NOTAS IMPORTANTES
+================================================================================
+
+1. El proyecto usa Laravel 12, no Laravel 11 como en las instrucciones
+   - Ajustar comandos si es necesario
+   - Verificar compatibilidad de paquetes
+
+2. El proyecto ya tiene Jetstream instalado
+   - No necesitas reinstalar
+   - Solo completar lo que falta
+
+3. El proyecto ya tiene Spatie Permission instalado
+   - Solo falta integrarlo correctamente
+
+4. Para el sistema de temas:
+   - Considerar usar CSS variables
+   - Guardar preferencias en BD y localStorage
+   - Implementar cambio automático según horario
+
+5. Para pagos:
+   - Puedes simular para desarrollo
+   - Integrar pasarela real para producción
+
+6. Para estadísticas:
+   - Considerar usar Chart.js o similar
+   - Implementar cache para mejorar rendimiento
+
+7. Todos los textos deben estar en español
+   - Validaciones
+   - Mensajes
+   - Interfaz
+
+================================================================================
+COMANDOS ÚTILES
+================================================================================
+
+# Limpiar caché
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Recrear base de datos
+php artisan migrate:fresh --seed
+
+# Ver rutas
+php artisan route:list
+
+# Compilar assets
+npm run dev          # Desarrollo
+npm run build        # Producción
+
+# Verificar permisos de usuario
+php artisan tinker
+>>> $user = User::find(1);
+>>> $user->getAllPermissions();
+>>> $user->getRoleNames();
+
+================================================================================
+FIN DEL PLAN DE ACCIÓN
+================================================================================
+

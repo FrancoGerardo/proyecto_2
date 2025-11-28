@@ -1,0 +1,320 @@
+@startuml Diseño Conceptual - Base de Datos Clínica Santiago Apóstol
+
+!define ENTITY_COLOR #E1F5FF
+!define RELATION_COLOR #4A90E2
+
+skinparam class {
+    BackgroundColor ENTITY_COLOR
+    BorderColor RELATION_COLOR
+    ArrowColor RELATION_COLOR
+}
+
+' ============================================
+' ENTIDADES PRINCIPALES - USUARIOS Y PERSONAS
+' ============================================
+
+entity "PERSONA" as Persona {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * dni : VARCHAR(20) <<UNIQUE>>
+    * nombre : VARCHAR(100)
+    * apellidos : VARCHAR(100)
+    telefono : VARCHAR(20)
+    direccion : TEXT
+    fecha_nacimiento : DATE
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "USUARIO" as Usuario {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * persona_id : VARCHAR(50) <<FK, UNIQUE>>
+    * email : VARCHAR(100) <<UNIQUE>>
+    email_verified_at : TIMESTAMP
+    * password_hash : VARCHAR(255)
+    foto_url : VARCHAR(255)
+    * tipo_usuario : VARCHAR(20) {PROPIETARIO, SECRETARIA, MEDICO, CLIENTE}
+    * estado : BOOLEAN
+    fecha_registro : TIMESTAMP
+    remember_token : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "PROPIETARIO" as Propietario {
+    * usuario_id : VARCHAR(50) <<PK, FK>>
+    --
+    nivel_acceso : VARCHAR(50)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "SECRETARIA" as Secretaria {
+    * usuario_id : VARCHAR(50) <<PK, FK>>
+    --
+    turno : VARCHAR(50)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "MEDICO" as Medico {
+    * usuario_id : VARCHAR(50) <<PK, FK>>
+    --
+    codigo_cmp : VARCHAR(50) <<UNIQUE>>
+    horario_atencion : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "CLIENTE" as Cliente {
+    * usuario_id : VARCHAR(50) <<PK, FK>>
+    --
+    antecedentes : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+' ============================================
+' ENTIDADES - SERVICIOS Y ESPECIALIDADES
+' ============================================
+
+entity "ESPECIALIDAD" as Especialidad {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * nombre : VARCHAR(50)
+    descripcion : VARCHAR(256)
+    estado : VARCHAR(20) {ACTIVA, INACTIVA}
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "SERVICIO" as Servicio {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * nombre : VARCHAR(100)
+    descripcion : TEXT
+    * categoria : VARCHAR(20) {INTERNACION, ESPECIALIDAD, ENFERMERIA}
+    especialidad_id : VARCHAR(50) <<FK>>
+    * costo : DECIMAL(10,2)
+    duracion_minutos : INTEGER
+    * estado : BOOLEAN
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "SALA" as Sala {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * numero : VARCHAR(20) <<UNIQUE>>
+    * categoria : VARCHAR(50)
+    equipamiento : TEXT
+    * estado : VARCHAR(20) {DISPONIBLE, OCUPADA, MANTENIMIENTO, INACTIVA}
+    * capacidad : INTEGER
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+' ============================================
+' ENTIDADES - FICHAS Y ATENCIÓN
+' ============================================
+
+entity "FICHA" as Ficha {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * cliente_id : VARCHAR(50) <<FK>>
+    * servicio_id : VARCHAR(50) <<FK>>
+    * medico_id : VARCHAR(50) <<FK>>
+    sala_id : VARCHAR(50) <<FK>>
+    * fecha : DATE
+    * hora : TIME
+    * estado : VARCHAR(20) {PENDIENTE, CONFIRMADA, ATENDIDA, CANCELADA}
+    motivo_consulta : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "SEGUIMIENTO" as Seguimiento {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * ficha_id : VARCHAR(50) <<FK>>
+    * tipo : VARCHAR(20) {TRIAGE, CONSULTA, TRATAMIENTO}
+    * fecha : TIMESTAMP
+    signos_vitales : JSON
+    motivo_consulta : TEXT
+    nivel_urgencia : VARCHAR(20) {BAJA, MEDIA, ALTA, URGENTE}
+    diagnostico : TEXT
+    observaciones : TEXT
+    tratamiento_prescrito : TEXT
+    medicamentos : JSON
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "HISTORIAL_CLINICO" as HistorialClinico {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * cliente_id : VARCHAR(50) <<FK, UNIQUE>>
+    alergias : TEXT
+    enfermedades_cronicas : TEXT
+    medicamentos_habituales : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+' ============================================
+' ENTIDADES - PAGOS Y FINANZAS
+' ============================================
+
+entity "PLAN_CUOTA" as PlanCuota {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * ficha_id : VARCHAR(50) <<FK>>
+    * numero_cuotas : INTEGER
+    * monto_total : DECIMAL(10,2)
+    * monto_cuota : DECIMAL(10,2)
+    * fecha_inicio : DATE
+    * intervalo_dias : INTEGER
+    * estado : VARCHAR(20) {ACTIVO, PAGADO, MOROSO, CANCELADO}
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "METODO_PAGO" as MetodoPago {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * usuario_id : VARCHAR(50) <<FK>>
+    * tipo : VARCHAR(50)
+    titular : VARCHAR(100)
+    numero_tarjeta_enmascarado : VARCHAR(50)
+    banco : VARCHAR(100)
+    numero_cuenta : VARCHAR(50)
+    datos_adicionales : JSON
+    * activo : BOOLEAN
+    predeterminado : BOOLEAN
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "PAGO" as Pago {
+    * id : VARCHAR(50) <<PK>>
+    --
+    plan_cuota_id : VARCHAR(50) <<FK>>
+    * ficha_id : VARCHAR(50) <<FK>>
+    metodo_pago_id : VARCHAR(50) <<FK>>
+    * monto : DECIMAL(10,2)
+    * tipo : VARCHAR(20) {CONTADO, CUOTA, ABONO}
+    numero_cuota : INTEGER
+    * fecha_pago : TIMESTAMP
+    * metodo_pago : VARCHAR(20) {EFECTIVO, TARJETA, TRANSFERENCIA, QR}
+    comprobante_url : VARCHAR(255)
+    * estado : VARCHAR(20) {PENDIENTE, PAGADO, ANULADO}
+    ' Campos PagoFácil
+    pagofacil_transaction_id : VARCHAR(100)
+    company_transaction_id : VARCHAR(100)
+    qr_base64 : TEXT
+    qr_status : VARCHAR(20)
+    qr_expiration : TIMESTAMP
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+' ============================================
+' ENTIDADES - RELACIONES MUCHOS A MUCHOS
+' ============================================
+
+entity "MEDICO_ESPECIALIDAD" as MedicoEspecialidad {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * medico_id : VARCHAR(50) <<FK>>
+    * especialidad_id : VARCHAR(50) <<FK>>
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "MEDICO_SERVICIO" as MedicoServicio {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * medico_id : VARCHAR(50) <<FK>>
+    * servicio_id : VARCHAR(50) <<FK>>
+    * activo : BOOLEAN
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "HORARIO_MEDICO" as HorarioMedico {
+    * id : VARCHAR(50) <<PK>>
+    --
+    * medico_id : VARCHAR(50) <<FK>>
+    * dia_semana : VARCHAR(20) {LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO}
+    * hora_inicio : TIME
+    * hora_fin : TIME
+    * activo : BOOLEAN
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+' ============================================
+' RELACIONES
+' ============================================
+
+Persona ||--|| Usuario : "tiene"
+Usuario ||--o| Propietario : "puede ser"
+Usuario ||--o| Secretaria : "puede ser"
+Usuario ||--o| Medico : "puede ser"
+Usuario ||--o| Cliente : "puede ser"
+
+Usuario ||--o{ MetodoPago : "tiene"
+
+Medico ||--o{ MedicoEspecialidad : "tiene"
+Especialidad ||--o{ MedicoEspecialidad : "pertenece a"
+Medico ||--o{ MedicoServicio : "ofrece"
+Servicio ||--o{ MedicoServicio : "es ofrecido por"
+Medico ||--o{ HorarioMedico : "tiene"
+
+Especialidad ||--o{ Servicio : "categoriza"
+
+Cliente ||--o{ Ficha : "solicita"
+Servicio ||--o{ Ficha : "se ofrece en"
+Medico ||--o{ Ficha : "atiende"
+Sala ||--o{ Ficha : "se realiza en"
+
+Ficha ||--o{ Seguimiento : "tiene"
+Ficha ||--|| PlanCuota : "puede tener"
+Ficha ||--o{ Pago : "tiene pagos"
+
+PlanCuota ||--o{ Pago : "tiene cuotas"
+MetodoPago ||--o{ Pago : "se usa en"
+
+Cliente ||--|| HistorialClinico : "tiene"
+
+' ============================================
+' NOTAS
+' ============================================
+
+note right of Usuario
+  **Tipo de Usuario:**
+  - PROPIETARIO
+  - SECRETARIA
+  - MEDICO
+  - CLIENTE
+end note
+
+note right of Ficha
+  **Estados:**
+  - PENDIENTE
+  - CONFIRMADA
+  - ATENDIDA
+  - CANCELADA
+end note
+
+note right of Pago
+  **Métodos de Pago:**
+  - EFECTIVO
+  - TARJETA
+  - TRANSFERENCIA
+  - QR (PagoFácil)
+end note
+
+@enduml
+

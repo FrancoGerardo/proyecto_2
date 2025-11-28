@@ -1,0 +1,342 @@
+
+/* Tema Niños - Modo Día */
+[data-tema="ninos"][data-modo="dia"] {
+  --color-primario: #FF6B9D;
+  --color-secundario: #C44569;
+  --color-fondo: #F8F9FA;
+  --color-fondo-secundario: #FFFFFF;
+  --color-texto: #2C3E50;
+  --color-texto-secundario: #5A6C7D;
+  --color-borde: #E0E0E0;
+  --color-hover: #FF8FB3;
+  --tamaño-fuente: 16px;
+  --tamaño-titulo: 24px;
+  --contraste: normal;
+}
+
+/* Tema Niños - Modo Noche */
+[data-tema="ninos"][data-modo="noche"] {
+  --color-primario: #FF6B9D;
+  --color-secundario: #C44569;
+  --color-fondo: #1A1A2E;
+  --color-fondo-secundario: #16213E;
+  --color-texto: #F8F9FA;
+  --color-texto-secundario: #E0E0E0;
+  --color-borde: #2C3E50;
+  --color-hover: #FF8FB3;
+  --tamaño-fuente: 16px;
+  --tamaño-titulo: 24px;
+  --contraste: alto;
+}
+
+/* Tema Jóvenes - Modo Día */
+[data-tema="jovenes"][data-modo="dia"] {
+  --color-primario: #4ECDC4;
+  --color-secundario: #44A08D;
+  --color-fondo: #FFFFFF;
+  --color-fondo-secundario: #F5F5F5;
+  --color-texto: #2C3E50;
+  --color-texto-secundario: #5A6C7D;
+  --color-borde: #E0E0E0;
+  --color-hover: #6EDDD6;
+  --tamaño-fuente: 14px;
+  --tamaño-titulo: 22px;
+  --contraste: normal;
+}
+
+/* Tema Jóvenes - Modo Noche */
+[data-tema="jovenes"][data-modo="noche"] {
+  --color-primario: #4ECDC4;
+  --color-secundario: #44A08D;
+  --color-fondo: #0F0F23;
+  --color-fondo-secundario: #1A1A2E;
+  --color-texto: #E0E0E0;
+  --color-texto-secundario: #B0B0B0;
+  --color-borde: #2C3E50;
+  --color-hover: #6EDDD6;
+  --tamaño-fuente: 14px;
+  --tamaño-titulo: 22px;
+  --contraste: alto;
+}
+
+/* Tema Adultos - Modo Día */
+[data-tema="adultos"][data-modo="dia"] {
+  --color-primario: #2C3E50;
+  --color-secundario: #34495E;
+  --color-fondo: #F5F5F5;
+  --color-fondo-secundario: #FFFFFF;
+  --color-texto: #2C3E50;
+  --color-texto-secundario: #5A6C7D;
+  --color-borde: #D0D0D0;
+  --color-hover: #34495E;
+  --tamaño-fuente: 14px;
+  --tamaño-titulo: 20px;
+  --contraste: normal;
+}
+
+/* Tema Adultos - Modo Noche */
+[data-tema="adultos"][data-modo="noche"] {
+  --color-primario: #3498DB;
+  --color-secundario: #2980B9;
+  --color-fondo: #1C1C1C;
+  --color-fondo-secundario: #2C2C2C;
+  --color-texto: #ECF0F1;
+  --color-texto-secundario: #BDC3C7;
+  --color-borde: #34495E;
+  --color-hover: #5DADE2;
+  --tamaño-fuente: 14px;
+  --tamaño-titulo: 20px;
+  --contraste: alto;
+}
+
+/* Accesibilidad - Tamaños de fuente */
+[data-accesibilidad="pequeño"] {
+  --tamaño-fuente: 12px;
+  --tamaño-titulo: 18px;
+}
+
+[data-accesibilidad="normal"] {
+  --tamaño-fuente: 14px;
+  --tamaño-titulo: 20px;
+}
+
+[data-accesibilidad="grande"] {
+  --tamaño-fuente: 18px;
+  --tamaño-titulo: 24px;
+}
+
+[data-accesibilidad="muy-grande"] {
+  --tamaño-fuente: 22px;
+  --tamaño-titulo: 28px;
+}
+
+/* Accesibilidad - Contraste */
+[data-contraste="alto"] {
+  --color-texto: #000000;
+  --color-fondo: #FFFFFF;
+  filter: contrast(1.2);
+}
+
+[data-contraste="alto"][data-modo="noche"] {
+  --color-texto: #FFFFFF;
+  --color-fondo: #000000;
+  filter: contrast(1.3);
+}
+
+/* Aplicar variables globalmente */
+html {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: var(--tamaño-fuente);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: var(--tamaño-fuente);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Componentes con variables */
+.tema-primario {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+.tema-secundario {
+  background-color: var(--color-secundario);
+  color: white;
+}
+
+.tema-fondo {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+.tema-fondo-secundario {
+  background-color: var(--color-fondo-secundario);
+  color: var(--color-texto);
+}
+
+.tema-texto {
+  color: var(--color-texto);
+}
+
+.tema-texto-secundario {
+  color: var(--color-texto-secundario);
+}
+
+.tema-tipografia {
+  font-size: var(--tamaño-fuente);
+}
+
+.tema-tipografia .text-xs {
+  font-size: calc(var(--tamaño-fuente) * 0.8) !important;
+}
+
+.tema-tipografia .text-sm {
+  font-size: calc(var(--tamaño-fuente) * 0.9) !important;
+}
+
+.tema-tipografia .text-base,
+.tema-tipografia {
+  font-size: var(--tamaño-fuente) !important;
+}
+
+.tema-tipografia .text-lg {
+  font-size: calc(var(--tamaño-fuente) * 1.1) !important;
+}
+
+.tema-tipografia .text-xl,
+.tema-tipografia .text-2xl {
+  font-size: calc(var(--tamaño-fuente) * 1.3) !important;
+}
+
+.tema-tipografia select,
+.tema-tipografia button,
+.tema-tipografia input,
+.tema-tipografia textarea {
+  font-size: inherit;
+}
+
+.tema-borde {
+  border-color: var(--color-borde);
+}
+
+.tema-titulo {
+  color: var(--color-primario);
+  font-size: var(--tamaño-titulo);
+  font-weight: bold;
+}
+
+/* Botones con tema */
+.btn-tema {
+  background-color: var(--color-primario);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--tamaño-fuente);
+  transition: background-color 0.3s ease;
+}
+
+.btn-tema:hover {
+  background-color: var(--color-hover);
+}
+
+.btn-tema-secundario {
+  background-color: var(--color-secundario);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--tamaño-fuente);
+  transition: background-color 0.3s ease;
+}
+
+/* Tablas con tema */
+.tabla-tema {
+  background-color: var(--color-fondo-secundario);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+}
+
+.tabla-tema th {
+  background-color: var(--color-primario);
+  color: white;
+  padding: 12px;
+  font-size: var(--tamaño-fuente);
+}
+
+.tabla-tema td {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-borde);
+  font-size: var(--tamaño-fuente);
+}
+
+.tabla-tema tr:hover {
+  background-color: var(--color-fondo);
+}
+
+/* Cards con tema */
+.card-tema {
+  background-color: var(--color-fondo-secundario);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Inputs con tema */
+.input-tema {
+  background-color: var(--color-fondo-secundario);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: var(--tamaño-fuente);
+  width: 100%;
+}
+
+.input-tema:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 2px rgba(var(--color-primario-rgb, 44, 62, 80), 0.2);
+}
+
+/* Override de Tailwind para que respete variables */
+.min-h-screen {
+  min-height: 100vh;
+  background-color: var(--color-fondo);
+}
+
+/* Navbar con tema */
+nav.tema-fondo-secundario {
+  background-color: var(--color-fondo-secundario) !important;
+  color: var(--color-texto) !important;
+}
+
+/* Textos con tema */
+.text-gray-500,
+.text-gray-400,
+.text-gray-800,
+.text-gray-700 {
+  color: var(--color-texto-secundario) !important;
+}
+
+/* Bordes con tema */
+.border-gray-100,
+.border-gray-200 {
+  border-color: var(--color-borde) !important;
+}
+
+/* Fondo blanco/gris override */
+.bg-white {
+  background-color: var(--color-fondo-secundario) !important;
+  color: var(--color-texto) !important;
+}
+
+.bg-gray-100 {
+  background-color: var(--color-fondo) !important;
+}
+
+.bg-gray-50 {
+  background-color: var(--color-fondo) !important;
+}
+
+/* Hover con tema */
+.hover\:bg-gray-100:hover,
+.hover\:bg-gray-50:hover {
+  background-color: var(--color-fondo) !important;
+}
+
+.hover\:text-gray-700:hover {
+  color: var(--color-texto) !important;
+}
+
