@@ -307,10 +307,10 @@ class PagoClienteController extends Controller
 
         // Actualizar el estado del pago si fue exitoso
         // Verificar múltiples formatos de estado que PagoFácil podría enviar
-        $estadoNormalizado = is_numeric($estado) ? (int) $estado : strtoupper(trim((string) $estado));
-        $esPagado = in_array($estadoNormalizado, ['COMPLETADO', 'PAID', 'PAGADO', 2, '2', 'COMPLETED'])
-            || $estado === 'Completado'
-            || $estado === 'PAID';
+        $estadoNormalizado = is_numeric($estado) ? (int)$estado : strtoupper(trim((string)$estado));
+        $esPagado = in_array($estadoNormalizado, ['COMPLETADO', 'PAID', 'PAGADO', 2, '2', 'COMPLETED']) 
+                 || $estado === 'Completado' 
+                 || $estado === 'PAID';
 
         Log::info('💳 [PagoFácil] Verificando estado del pago', [
             'estado_recibido' => $estado,
@@ -417,8 +417,8 @@ class PagoClienteController extends Controller
         // Aceptar transactionId o ficha_id para compatibilidad
         $transactionId = $request->input('transaction_id') ?? $request->input('transactionId');
         $fichaId = $request->input('ficha_id');
-
-        if (!$transactionId) {
+        
+        if (!$transactionId ) {
             return response()->json(['error' => 'Se requiere transaction_id'], 400);
         }
 
@@ -426,7 +426,7 @@ class PagoClienteController extends Controller
         if ($transactionId) {
             $pago = Pago::where('pagofacil_transaction_id', $transactionId)
                 ->first();
-
+            
             if (!$pago) {
                 Log::warning('⚠️ [PagoFácil] No se encontró pago con transactionId', ['transactionId' => $transactionId]);
                 return response()->json(['error' => 'Pago no encontrado'], 404);
@@ -495,7 +495,7 @@ class PagoClienteController extends Controller
             // Verificar que la respuesta de la API sea exitosa
             $errorCode = $result['error'] ?? null;
             $apiStatus = $result['status'] ?? null;
-
+            
             if ($errorCode !== 0 && $errorCode !== null) {
                 Log::warning('⚠️ [PagoFácil] La API reportó un error', [
                     'error' => $errorCode,
@@ -506,7 +506,7 @@ class PagoClienteController extends Controller
 
             // La información del pago está en 'values'
             $responseData = $result['values'] ?? [];
-
+            
             if (empty($responseData)) {
                 Log::warning('⚠️ [PagoFácil] No se encontró "values" en la respuesta', ['result' => $result]);
                 return response()->json([
@@ -541,19 +541,19 @@ class PagoClienteController extends Controller
                 ], 500);
             }
 
-            $status = (int) $paymentStatus; // Asegurar que sea número
-
+            $status = (int)$paymentStatus; // Asegurar que sea número
+            
             Log::info('💳 [PagoFácil] Estado detectado', [
                 'status' => $status,
                 'status_type' => gettype($status),
                 'status_description' => $paymentStatusDescription,
                 // Estados conocidos: 1=PENDING, 2=PAID, 3=CANCELLED, 4=EXPIRED, 5=REVISION
             ]);
-
+            
             // Verificar si está PAID (estado 2) o si la descripción indica pago completado
-            $esPagado = ($status == 5)
+            $esPagado = ($status == 5) 
                 || ($paymentStatusDescription && in_array(strtoupper($paymentStatusDescription), ['PAID', 'PAGADO', 'COMPLETADO', 'COMPLETED', 'APROBADO']));
-
+            
             if ($esPagado) { // PAID
                 Log::info('✅ [PagoFácil] ¡PAGO CONFIRMADO! Actualizando estado...', [
                     'pago_id' => $pago->id,

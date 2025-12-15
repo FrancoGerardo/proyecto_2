@@ -68,3 +68,4 @@ echo "\n";
 echo "💡 Siguiente paso: Revisa los logs de Laravel para ver el procesamiento completo\n";
 echo "   tail -f storage/logs/laravel.log\n";
 
+

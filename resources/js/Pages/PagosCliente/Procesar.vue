@@ -104,7 +104,7 @@ function iniciarConsultaAutomatica() {
     console.log('🔄 [Procesar] Iniciando consulta automática cada 5 segundos');
     intervaloConsulta.value = setInterval(() => {
         consultarEstado();
-    }, 60000);
+    }, 30000);
 }
 
 function consultarEstado() {
@@ -275,113 +275,175 @@ onUnmounted(() => {
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- Header -->
-                    <div v-if="!qrData" class="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
                         <h3 class="text-2xl font-bold text-white">Resumen de la Cita</h3>
-                    </div>
-                    <div v-else class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 text-center">
-                        <h3 class="text-2xl font-bold text-white">Escanea el QR para Pagar</h3>
                     </div>
 
                     <!-- Información de la Ficha -->
                     <div class="p-6">
-                        <!-- Resumen y Selección (Solo visible si NO hay QR generado) -->
-                        <div v-if="!qrData">
-                            <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                                <div class="space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Servicio:</span>
-                                        <span class="font-semibold">{{ ficha.servicio?.nombre }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Médico:</span>
-                                        <span class="font-semibold">
-                                            {{ ficha.medico?.usuario?.persona?.nombre_completo }}
-                                        </span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Fecha:</span>
-                                        <span class="font-semibold">{{ formatearFecha(ficha.fecha) }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Hora:</span>
-                                        <span class="font-semibold">{{ formatearHora(ficha.hora) }}</span>
-                                    </div>
-                                    <div v-if="ficha.motivo_consulta" class="pt-4 border-t">
-                                        <span class="text-gray-600">Motivo:</span>
-                                        <p class="mt-1 text-gray-800">{{ ficha.motivo_consulta }}</p>
-                                    </div>
+                        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Servicio:</span>
+                                    <span class="font-semibold">{{ ficha.servicio?.nombre }}</span>
                                 </div>
-                            </div>
-
-                            <!-- Total a Pagar -->
-                            <div class="bg-indigo-50 rounded-lg p-6 mb-6">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xl font-semibold text-gray-800">Total a Pagar:</span>
-                                    <span class="text-3xl font-bold text-indigo-600">
-                                        {{ formatearMoneda(saldoPendiente) }}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Médico:</span>
+                                    <span class="font-semibold">
+                                        {{ ficha.medico?.usuario?.persona?.nombre_completo }}
                                     </span>
                                 </div>
-                                <div v-if="totalPagado > 0" class="mt-2 text-sm text-gray-600">
-                                    Ya pagado: {{ formatearMoneda(totalPagado) }}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Fecha:</span>
+                                    <span class="font-semibold">{{ formatearFecha(ficha.fecha) }}</span>
                                 </div>
-                            </div>
-
-                                <!-- Métodos de Pago -->
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold mb-4">Método de Pago</h4>
-                                <div class="grid grid-cols-1 gap-4">
-                                    <!-- QR -->
-                                    <button
-                                        @click="seleccionarMetodo('QR')"
-                                        :class="['border-2 rounded-lg p-4 transition flex items-center justify-center gap-3', metodoSeleccionado === 'QR' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-500']"
-                                    >
-                                        <div class="text-4xl">📱</div>
-                                        <p class="font-semibold text-lg">Pagar con QR</p>
-                                    </button>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Hora:</span>
+                                    <span class="font-semibold">{{ formatearHora(ficha.hora) }}</span>
+                                </div>
+                                <div v-if="ficha.motivo_consulta" class="pt-4 border-t">
+                                    <span class="text-gray-600">Motivo:</span>
+                                    <p class="mt-1 text-gray-800">{{ ficha.motivo_consulta }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sección QR (Centrada y limpia) -->
-                        <div v-if="qrData" class="flex flex-col items-center justify-center py-8">
-                            <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
+                        <!-- Total a Pagar -->
+                        <div class="bg-indigo-50 rounded-lg p-6 mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl font-semibold text-gray-800">Total a Pagar:</span>
+                                <span class="text-3xl font-bold text-indigo-600">
+                                    {{ formatearMoneda(saldoPendiente) }}
+                                </span>
+                            </div>
+                            <div v-if="totalPagado > 0" class="mt-2 text-sm text-gray-600">
+                                Ya pagado: {{ formatearMoneda(totalPagado) }}
+                            </div>
+                        </div>
+
+                        <!-- Métodos de Pago -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-4">Selecciona Método de Pago</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- QR -->
+                                <button
+                                    @click="seleccionarMetodo('QR')"
+                                    :class="['border-2 rounded-lg p-4 transition', metodoSeleccionado === 'QR' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-500']"
+                                >
+                                    <div class="text-4xl mb-2">📱</div>
+                                    <p class="font-semibold">Pago con QR</p>
+                                </button>
+
+                                <!-- Tarjeta -->
+                                <button
+                                    @click="seleccionarMetodo('TARJETA')"
+                                    :class="['border-2 rounded-lg p-4 transition', metodoSeleccionado === 'TARJETA' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-500']"
+                                >
+                                    <div class="text-4xl mb-2">💳</div>
+                                    <p class="font-semibold">Tarjeta</p>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sección QR -->
+                        <div v-if="metodoSeleccionado === 'QR' && qrData" class="mb-6 bg-blue-50 rounded-lg p-6">
+                            <h5 class="font-semibold text-gray-800 mb-4 text-center">Escanea el QR con tu app de pagos</h5>
+                            <div class="flex justify-center mb-4">
                                 <img 
                                     :src="'data:image/png;base64,' + qrData.qrBase64" 
                                     alt="QR Code" 
-                                    class="w-80 h-80 rounded-lg"
+                                    class="w-64 h-64 border-2 border-gray-300 rounded-lg"
                                 />
                             </div>
-                            
-                            <div class="text-center mt-8 space-y-4">
-                                <div class="animate-pulse">
-                                    <p class="text-lg font-medium text-indigo-600">Esperando pago...</p>
-                                    <p class="text-sm text-gray-500">Escanea el código con tu aplicación bancaria</p>
-                                </div>
-                                
-                                <div class="pt-4">
-                                    <button
-                                        @click="consultarEstado"
-                                        :disabled="consultandoEstado"
-                                        class="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition text-sm font-medium shadow-sm"
-                                    >
-                                        {{ consultandoEstado ? 'Verificando...' : 'Verificar Estado Manualmente' }}
-                                    </button>
-                                </div>
-
-                                <div class="pt-8">
-                                    <Link
-                                        :href="route('cliente.fichas.index')"
-                                        class="text-gray-400 hover:text-gray-600 text-sm underline decoration-dotted"
-                                    >
-                                        Cancelar y volver
-                                    </Link>
-                                </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-600 mb-2">Esperando confirmación de pago...</p>
+                                <button
+                                    @click="consultarEstado"
+                                    :disabled="consultandoEstado"
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                                >
+                                    {{ consultandoEstado ? 'Consultando...' : 'Consultar Estado' }}
+                                </button>
                             </div>
                         </div>
 
+                        <!-- Sección Tarjeta -->
+                        <div v-if="metodoSeleccionado === 'TARJETA'" class="mb-6 bg-gray-50 rounded-lg p-6">
+                            <h5 class="font-semibold text-gray-800 mb-4">Datos de la Tarjeta</h5>
+                            <form @submit.prevent="procesarTarjeta" class="space-y-4">
+                                <div>
+                                    <InputLabel for="numero_tarjeta" value="Número de Tarjeta *" />
+                                    <TextInput
+                                        id="numero_tarjeta"
+                                        v-model="formularioTarjeta.numero_tarjeta"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        @input="formatearNumeroTarjeta"
+                                        placeholder="1234 5678 9012 3456"
+                                        maxlength="19"
+                                        required
+                                    />
+                                    <InputError :message="formularioTarjeta.errors.numero_tarjeta" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel for="nombre_titular" value="Nombre del Titular *" />
+                                    <TextInput
+                                        id="nombre_titular"
+                                        v-model="formularioTarjeta.nombre_titular"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        placeholder="JUAN PEREZ"
+                                        required
+                                    />
+                                    <InputError :message="formularioTarjeta.errors.nombre_titular" class="mt-2" />
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <InputLabel for="fecha_vencimiento" value="Fecha Vencimiento (MM/AA) *" />
+                                        <TextInput
+                                            id="fecha_vencimiento"
+                                            v-model="formularioTarjeta.fecha_vencimiento"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            @input="formatearFechaVencimiento"
+                                            placeholder="12/25"
+                                            maxlength="5"
+                                            required
+                                        />
+                                        <InputError :message="formularioTarjeta.errors.fecha_vencimiento" class="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel for="cvv" value="CVV *" />
+                                        <TextInput
+                                            id="cvv"
+                                            v-model="formularioTarjeta.cvv"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            placeholder="123"
+                                            maxlength="4"
+                                            required
+                                        />
+                                        <InputError :message="formularioTarjeta.errors.cvv" class="mt-2" />
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <PrimaryButton
+                                        type="submit"
+                                        :disabled="formularioTarjeta.processing"
+                                        class="w-full"
+                                    >
+                                        {{ formularioTarjeta.processing ? 'Procesando...' : 'Procesar Pago' }}
+                                    </PrimaryButton>
+                                </div>
+                            </form>
+                        </div>
+
                         <!-- Botones -->
-                        <!-- Botones (Solo si no hay QR) -->
-                        <div v-if="!qrData" class="flex justify-between">
+                        <div class="flex justify-between">
                             <Link
                                 :href="route('cliente.fichas.index')"
                                 class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition"

@@ -112,3 +112,4 @@ Las credenciales están en tu archivo `.env`:
 
 Si no las tienes, revisa tu archivo `.env` o contacta a PagoFácil para obtenerlas.
 
+

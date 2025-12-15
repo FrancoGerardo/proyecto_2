@@ -223,3 +223,4 @@ WHERE company_transaction_id = 'FICHA-TEST-12345';
 - El callback se ejecuta sin autenticación (ruta pública)
 - Siempre responde con HTTP 200 y el formato JSON esperado
 
+
